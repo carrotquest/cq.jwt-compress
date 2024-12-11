@@ -84,7 +84,7 @@ class ScopeTemplateIntegerVarCompressor(AbstractVarCompressor):
                 yield tpl
                 continue
 
-            for start_pos in range(2, len(values_bytes), chunk_size):
+            for start_pos in range(2, len(encoded_bytes), chunk_size):
                 item_vals = self.decompress_values(
                     encoded_bytes[start_pos:start_pos + chunk_size], bytes_count=bytes_count
                 )

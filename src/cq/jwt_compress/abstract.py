@@ -1,4 +1,5 @@
 import re
+from base64 import b64decode, b64encode
 from collections import defaultdict
 from typing import Iterable, Dict, List, Set, Optional, Any, TypeVar
 
@@ -36,7 +37,7 @@ class JWTScopesCompressor:
         :param data: Bytes to encode for json
         :return: String which can be stored in JSON
         """
-        return data.decode("latin1")
+        return b64encode(data).decode()
 
     @classmethod
     def json_str_to_bytes(cls, data: str) -> bytes:
@@ -45,7 +46,7 @@ class JWTScopesCompressor:
         :param data: Data to decode
         :return: Original bytes value
         """
-        return data.encode("latin1")
+        return b64decode(data)
 
     @classmethod
     def get_class_by_name(cls: T, name: str) -> T:
