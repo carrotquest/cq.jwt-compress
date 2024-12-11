@@ -8,5 +8,7 @@ services:
       dockerfile: Dockerfile
       args:
         - PYTHON_VER=${PYTHON_VER:-3.11.10}
+    volumes:
+      - .:/app/src
     mem_limit: 1g
     cpus: 1

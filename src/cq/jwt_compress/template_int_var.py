@@ -8,7 +8,7 @@ from .abstract import AbstractVarCompressor
 
 
 class ScopeTemplateIntegerVarCompressor(AbstractVarCompressor):
-    service_name: str = "int_tpl"
+    name: str = "int_tpl"
 
     def __init__(self, except_vars: Iterable[str] = (), value_separator: bytes = b"\0"):
         """

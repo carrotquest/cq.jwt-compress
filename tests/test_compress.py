@@ -37,14 +37,41 @@ class AbstractTestCompressMixin:
             "user.read.$app:100.user_id:*",
         ))
 
+    def test_get_instance_by_name(self):
+        compressor = JWTScopesCompressor.get_instance_by_name(self.compressor.name)
+        self.assertIsInstance(compressor, self.compressor.__class__)
+
 
 class TestZlibCompress(AbstractTestCompressMixin, TestCase):
     compressor = ZLibScopesCompressor()
+
+    def test_get_instance_by_name_kwargs(self):
+        compressor = JWTScopesCompressor.get_instance_by_name(self.compressor.name, kwargs={"level": 6})
+
+        self.assertIsInstance(compressor, self.compressor.__class__)
+        self.assertEqual(6, compressor.level)
 
 
 class TestTemplateCompress(AbstractTestCompressMixin, TestCase):
     compressor = ScopeTemplateVarCompressor(except_vars={"django_user", "scope_flags"})
 
+    def test_get_class_by_name(self):
+        compressor_cls = JWTScopesCompressor.get_class_by_name(self.compressor.name)
+
+        self.assertEqual(self.compressor.__class__, compressor_cls)
+
+    def test_get_instance_by_name_kwargs(self):
+        compressor = JWTScopesCompressor.get_instance_by_name(self.compressor.name, kwargs={"except_vars": ("test",)})
+
+        self.assertIsInstance(compressor, self.compressor.__class__)
+        self.assertSetEqual({"test"}, compressor.except_vars)
+
 
 class TestIntegerTemplateCompress(AbstractTestCompressMixin, TestCase):
     compressor = ScopeTemplateIntegerVarCompressor(except_vars={"django_user", "scope_flags"})
+
+    def test_get_instance_by_name_kwargs(self):
+        compressor = JWTScopesCompressor.get_instance_by_name(self.compressor.name, kwargs={"except_vars": ("test",)})
+
+        self.assertIsInstance(compressor, self.compressor.__class__)
+        self.assertSetEqual({"test"}, compressor.except_vars)

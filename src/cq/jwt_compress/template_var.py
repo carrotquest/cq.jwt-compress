@@ -7,7 +7,7 @@ class ScopeTemplateVarCompressor(AbstractVarCompressor):
     """
     Compress roles and scopes by finding repeating templates and its string values and removing unnecessary text
     """
-    service_name: str = "tpl"
+    name: str = "tpl"
 
     def __init__(self, except_vars: Iterable[str] = (), value_separator: str = "\0", item_separator: str = "\t"):
         """

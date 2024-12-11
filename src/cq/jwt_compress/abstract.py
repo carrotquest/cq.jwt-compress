@@ -1,18 +1,15 @@
 import re
 from collections import defaultdict
-from typing import Iterable, Dict, List, Set
+from typing import Iterable, Dict, List, Set, Optional, Any, TypeVar, Type
+
+T = TypeVar("T", bound="JWTScopesCompressor")
 
 
 class JWTScopesCompressor:
     """
     Base abstract class for compressing JWT roles and scopes
     """
-    def name(self) -> str:
-        """
-        Name for short string identification
-        :return: String name
-        """
-        raise NotImplementedError()
+    name: str = None
 
     def compress(self, data: Iterable[str]) -> Iterable[str]:
         """
@@ -29,6 +26,38 @@ class JWTScopesCompressor:
         :return: Source (decompressed) data
         """
         raise NotImplementedError()
+
+    @classmethod
+    def get_class_by_name(cls: T, name: str) -> T:
+        """
+        Возвращает подклассы текущего класса по service_name по его имени
+        :param name: Имя сервиса
+        :return: Подкласс
+        """
+        try:
+            return next(sub_cls for sub_cls in cls.__subclasses__() if sub_cls.name == name)
+        except StopIteration:
+
+            for sub_cls in cls.__subclasses__():
+                try:
+                    return sub_cls.get_class_by_name(name)
+                except StopIteration:
+                    pass
+
+        raise StopIteration(f"Subclass with name `{name}` was not found. May be it is not imported at the moment.")
+
+    @classmethod
+    def get_instance_by_name(cls: T, name: str, args: Iterable[Any] = (), kwargs: Optional[dict] = None) -> 'T':
+        """
+        Инстанциирует подкласс по его имени
+        :param name: Имя сервиса для поиска подкласса
+        :param args: Позиционные аргументы для передачи в конструктор
+        :param kwargs: Именованные аргументы для передачи в конструктор подкласса
+        :return: Инстанс подкласса
+        """
+        sub_cls: T = cls.get_class_by_name(name)
+        kwargs = kwargs or {}
+        return sub_cls(*args, **kwargs)
 
 
 
