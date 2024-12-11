@@ -2,7 +2,7 @@ import base64
 from itertools import chain
 
 from math import ceil
-from typing import Iterable, List, Dict
+from typing import Iterable, List
 
 from .abstract import AbstractVarCompressor
 

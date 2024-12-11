@@ -1,6 +1,6 @@
 import re
 from collections import defaultdict
-from typing import Iterable, Dict, List, Set, Optional, Any, TypeVar, Type
+from typing import Iterable, Dict, List, Set, Optional, Any, TypeVar
 
 T = TypeVar("T", bound="JWTScopesCompressor")
 
