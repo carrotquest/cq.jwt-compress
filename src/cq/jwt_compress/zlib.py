@@ -1,4 +1,3 @@
-import base64
 import sys
 import zlib
 
@@ -27,14 +26,11 @@ class ZLibScopesCompressor(JWTScopesCompressor):
         data = sorted(data)
         kwargs = {"wbits": self.wbits} if sys.version_info >= (3, 11) else {}
         res = zlib.compress(self.separator.join(data).encode(), level=self.level, **kwargs)
-
-        # JSON can not store bytes. So we should encode them to string.
-        # Base64 is much more effective in storing than hex
-        return [base64.b64encode(res).decode("ascii")]
+        return [self.bytes_to_json_str(res)]
 
     def decompress(self, data: Iterable[str]) -> Iterable[str]:
         data = list(data)
-        data_bytes = base64.b64decode(data[0].encode("ascii"))
+        data_bytes = self.json_str_to_bytes(data[0])
         decompressed = zlib.decompress(data_bytes, wbits=self.wbits)
         for item in decompressed.decode().split(self.separator):
             yield item

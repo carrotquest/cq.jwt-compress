@@ -1,4 +1,3 @@
-import base64
 from itertools import chain
 
 from math import ceil
@@ -10,7 +9,7 @@ from .abstract import AbstractVarCompressor
 class ScopeTemplateIntegerVarCompressor(AbstractVarCompressor):
     name: str = "int_tpl"
 
-    def __init__(self, except_vars: Iterable[str] = (), value_separator: bytes = b"\0"):
+    def __init__(self, except_vars: Iterable[str] = (), value_separator: str = "\0"):
         """
         :param except_vars: Variable names that should be ignored. Shouldn't contain leading `$` symbol.
         :param value_separator: Separator symbol which is used to split values in compressed format.
@@ -66,30 +65,27 @@ class ScopeTemplateIntegerVarCompressor(AbstractVarCompressor):
             bytes_item =(
                 int.to_bytes(max_bytes, 1, 'big', signed=False)
                 + int.to_bytes(len(tpl_values[0]), 1, 'big', signed=False)
-                + tpl.encode("ascii")
-                + self.value_separator
                 + encoded_bytes
             )
-            yield base64.b64encode(bytes_item).decode("ascii")
+            yield tpl + self.value_separator + self.bytes_to_json_str(bytes_item)
 
 
     def decompress(self, data: Iterable[str]) -> Iterable[str]:
         for data_item in data:
-            encoded_bytes = base64.b64decode(data_item.encode("ascii"))
+            tpl, values_bytes = data_item.split(self.value_separator, 1)
+            encoded_bytes = self.json_str_to_bytes(values_bytes)
             bytes_count = int.from_bytes(encoded_bytes[:1], 'big', signed=False)
             vars_count = int.from_bytes(encoded_bytes[1:2], 'big', signed=False)
 
             chunk_size = bytes_count * vars_count
-            tpl_bytes, values_bytes = encoded_bytes[2:].split(self.value_separator, 1)
-            tpl = tpl_bytes.decode("ascii")
 
             # Ситуация, когда в шаблоне нет переменных
             if chunk_size == 0:
                 yield tpl
                 continue
 
-            for start_pos in range(0, len(values_bytes), chunk_size):
+            for start_pos in range(2, len(values_bytes), chunk_size):
                 item_vals = self.decompress_values(
-                    values_bytes[start_pos:start_pos + chunk_size], bytes_count=bytes_count
+                    encoded_bytes[start_pos:start_pos + chunk_size], bytes_count=bytes_count
                 )
                 yield tpl.format(*item_vals)

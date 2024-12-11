@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="cq.jwt-compress",
-    version="1.1.0",
+    version="1.2.0",
     packages=["cq.jwt_compress"],
     namespace_packages=["cq"],
     package_dir={"": "src"},

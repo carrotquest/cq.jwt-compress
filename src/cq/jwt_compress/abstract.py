@@ -2,6 +2,7 @@ import re
 from collections import defaultdict
 from typing import Iterable, Dict, List, Set, Optional, Any, TypeVar
 
+
 T = TypeVar("T", bound="JWTScopesCompressor")
 
 
@@ -26,6 +27,25 @@ class JWTScopesCompressor:
         :return: Source (decompressed) data
         """
         raise NotImplementedError()
+
+    @classmethod
+    def bytes_to_json_str(cls, data: bytes) -> str:
+        """
+        JSON can't store bytes. So value should be encoded to some text representation.
+        Representation should be efficient
+        :param data: Bytes to encode for json
+        :return: String which can be stored in JSON
+        """
+        return data.decode("latin1")
+
+    @classmethod
+    def json_str_to_bytes(cls, data: str) -> bytes:
+        """
+        Decodes string, created by cls.bytes_to_json_str(...)
+        :param data: Data to decode
+        :return: Original bytes value
+        """
+        return data.encode("latin1")
 
     @classmethod
     def get_class_by_name(cls: T, name: str) -> T:
